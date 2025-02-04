@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MetaMask Connection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .status {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    .status span {
+      font-weight: bold;
+    }
+    .connected {
+      color: green;
+    }
+    .disconnected {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connect MetaMask Wallet</h1>
+  <button id="connectWalletButton">Connect Wallet</button>
+  <div class="status">
+    Status: <span id="connectionStatus" class="disconnected">Disconnected</span>
+  </div>
+  <div>
+    Wallet Address: <span id="walletAddress">N/A</span>
+  </div>
+
+  <script>
+    const connectWalletButton = document.getElementById('connectWalletButton');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const walletAddressSpan = document.getElementById('walletAddress');
+
+    // Check if MetaMask is installed
+    if (typeof window.ethereum !== 'undefined') {
+      console.log('MetaMask is installed!');
+    } else {
+      alert('MetaMask is not installed. Please install it to use this feature.');
+    }
+
+    // Function to connect wallet
+    async function connectWallet() {
+      try {
+        // Request account access
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const walletAddress = accounts[0];
+
+        // Update UI with connection status and wallet address
+        connectionStatus.textContent = 'Connected';
+        connectionStatus.classList.remove('disconnected');
+        connectionStatus.classList.add('connected');
+        walletAddressSpan.textContent = walletAddress;
+      } catch (error) {
+        console.error('Error connecting to MetaMask:', error);
+        alert('Could not connect to MetaMask. Please try again.');
+      }
+    }
+
+    // Add event listener to the button
+    connectWalletButton.addEventListener('click', connectWallet);
+
+    // Listen for account changes
+    window.ethereum.on('accountsChanged', (accounts) => {
+      if (accounts.length > 0) {
+        walletAddressSpan.textContent = accounts[0];
+        connectionStatus.textContent = 'Connected';
+        connectionStatus.classList.remove('disconnected');
+        connectionStatus.classList.add('connected');
+      } else {
+        connectionStatus.textContent = 'Disconnected';
+        connectionStatus.classList.remove('connected');
+        connectionStatus.classList.add('disconnected');
+        walletAddressSpan.textContent = 'N/A';
+      }
+    });
+  </script>
+</body>
+</html>
